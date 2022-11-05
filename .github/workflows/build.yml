@@ -57,5 +57,5 @@ jobs:
         GITEA_API_KEY: ${{ secrets.GITEA_API_KEY }}
       run: |
         cd build/bin
-        tar -a -c -f aseprite.${{ runner.os }}.zip aseprite* data/
-        python3 ../../push_gitea_release.py aseprite.${{ runner.os }}.zip ${GITEA_API_KEY} ${GITHUB_REF_NAME}
+        tar -czvf aseprite.${{ runner.os }}.tar.gz aseprite* data/
+        python3 ../../push_gitea_release.py aseprite.${{ runner.os }}.tar.gz ${GITEA_API_KEY} ${GITHUB_REF_NAME}
