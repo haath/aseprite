@@ -10,13 +10,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        build_type: [RelWithDebInfo, Debug]
+        os: [windows-latest, ubuntu-latest]
+        build_type: [RelWithDebInfo]
         enable_ui: [off]
-        include:
-          - os: ubuntu-latest
-            build_type: Debug
-            enable_ui: on
     steps:
     - uses: actions/checkout@v2
       with:
@@ -59,22 +55,5 @@ jobs:
       shell: bash
       run: |
         cd build/bin
-        tar.exe -a -c -f aseprite.windows.zip aseprite data/
-        python3 push_gitea_release.py aseprite.windows.zip ${{ secrets.GITEA_API_KEY }} ${GITHUB_REF_NAME}
-
-    - name: Running C++ Tests
-      shell: bash
-      run: |
-        if [[ "${{ runner.os }}" == "Linux" ]] ; then
-          export XVFB=xvfb-run
-        fi
-        cd build && $XVFB ctest --output-on-failure
-    - name: Running CLI Tests
-      shell: bash
-      run: |
-        if [[ "${{ runner.os }}" == "Linux" ]] ; then
-          export XVFB=xvfb-run
-        fi
-        export ASEPRITE=$PWD/build/bin/aseprite
-        cd tests
-        $XVFB bash run-tests.sh
+        tar.exe -a -c -f aseprite.${{ runner.os }}.zip aseprite* data/
+        python3 push_gitea_release.py aseprite.${{ runner.os }}.zip ${{ secrets.GITEA_API_KEY }} ${GITHUB_REF_NAME}
