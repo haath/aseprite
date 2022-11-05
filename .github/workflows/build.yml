@@ -1,5 +1,9 @@
 name: build
-on: [push, pull_request]
+on:
+  push:
+    tags:
+      - '*'
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -51,6 +55,13 @@ jobs:
       shell: bash
       run: |
         cd build && ninja
+    - name: Publish
+      shell: bash
+      run: |
+        cd build/bin
+        tar.exe -a -c -f aseprite.windows.zip aseprite data/
+        python3 push_gitea_release.py aseprite.windows.zip ${{ secrets.GITEA_API_KEY }} ${GITHUB_REF_NAME}
+
     - name: Running C++ Tests
       shell: bash
       run: |
