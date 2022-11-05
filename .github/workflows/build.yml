@@ -52,7 +52,7 @@ jobs:
       run: |
         cd build && ninja
     - name: Publish
-      shell: bashenv:
+      shell: bash
       env:
         GITEA_API_KEY: ${{ secrets.GITEA_API_KEY }}
       run: |
