@@ -1,0 +1,74 @@
+kind: pipeline
+type: docker
+name: linux
+
+trigger:
+  event:
+    - tag
+
+volumes:
+- name: dockersock
+  host:
+    path: /var/run/docker.sock
+
+steps:
+- name: submodules
+  image: drone/git
+  commands:
+  - git submodule update --init --recursive
+
+- name: build
+  image: ubuntu:18.04
+  environment:
+    CC: clang-10
+    CXX: clang++-10
+  commands:
+  # upgrade cmake
+  - apt-get update
+  - apt-get install -yqq apt-transport-https ca-certificates gnupg software-properties-common wget zip
+  - wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add -
+  - apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
+  - apt-get update
+  - apt-get install -y cmake
+  - cmake --version
+  # install aseprite dependencies
+  - apt-get install -y g++ clang-10 libc++-10-dev libc++abi-10-dev cmake ninja-build libx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev libfontconfig1-dev unzip
+  - wget -O skia.zip https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Linux-Release-x64-libc++.zip
+  - mkdir -p build/skia
+  - unzip skia.zip -d build/skia/
+  # build
+  - mkdir -p build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS:STRING=-stdlib=libc++ -DCMAKE_EXE_LINKER_FLAGS:STRING=-stdlib=libc++ -DLAF_BACKEND=skia -DSKIA_DIR=./skia  -DSKIA_LIBRARY_DIR=./skia/out/Release-x64 -DSKIA_LIBRARY=./skia/out/Release-x64/libskia.a -G Ninja \..
+  - ninja aseprite
+  # zip results
+  - cd bin
+  - zip -r aseprite.linux.zip aseprite data/
+
+- name: build image
+  image: docker:20.10.21
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run/docker.sock
+  environment:
+    GITEA_API_KEY:
+      from_secret: GITEA_API_KEY
+    IMAGE_NAME: git.gmantaos.com/haath/aseprite
+  commands:
+  - docker build -t $IMAGE_NAME .
+  - docker login -u haath -p "$GITEA_API_KEY" git.gmantaos.com
+  - docker tag $IMAGE_NAME "$IMAGE_NAME:$DRONE_TAG"
+  - docker push "$IMAGE_NAME:$DRONE_TAG"
+  - docker tag $IMAGE_NAME "$IMAGE_NAME:latest"
+  - docker push "$IMAGE_NAME:latest"
+
+- name: release
+  image: plugins/gitea-release
+  settings:
+    api_key:
+      from_secret: GITEA_API_KEY
+    base_url: https://git.gmantaos.com/
+    title: ${DRONE_TAG}
+    files:
+    - build/bin/aseprite.linux.zip

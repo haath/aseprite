@@ -10,21 +10,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest]
         build_type: [RelWithDebInfo]
         enable_ui: [ on ]
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: 'recursive'
+
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
       if: runner.os == 'Linux'
       with:
         key: ${{ matrix.os }}-${{ matrix.enable_ui }}
+
     - uses: seanmiddleditch/gha-setup-ninja@master
+
     - uses: ilammy/msvc-dev-cmd@v1
       if: runner.os == 'Windows'
+
     - name: Install Dependencies
       shell: bash
       run: |
@@ -34,17 +38,12 @@ jobs:
             g++ clang-10 libc++-10-dev libc++abi-10-dev cmake ninja-build libx11-dev \
             libxcursor-dev libxi-dev libgl1-mesa-dev libfontconfig1-dev unzip
         fi
+
     - name: Get skia
       shell: bash
       run: |
         mkdir -p build/skia
-        if [[ "${{ runner.os }}" == "Linux" ]] ; then
-          cd build
-          wget -O skia.zip https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Linux-Release-x64-libc++.zip
-          unzip skia.zip -d skia/
-        else
-          powershell.exe -File get_skia.ps1
-        fi
+        powershell.exe -File get_skia.ps1
 
     - name: Generating Makefiles
       shell: bash
@@ -54,31 +53,19 @@ jobs:
         else
           export enable_ccache=on
         fi
-        if [[ "${{ runner.os }}" == "Windows" ]] ; then
-          cmake -S . -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
-            -DENABLE_TESTS=ON \
-            -DENABLE_UI=${{ matrix.enable_ui }} \
-            -DENABLE_CCACHE=$enable_ccache \
-            -DLAF_BACKEND=skia -DSKIA_DIR=./build/skia  -DSKIA_LIBRARY_DIR=./build/skia/out/Release-x64 -DSKIA_LIBRARY=./build/skia/out/Release-x64/skia.lib
-        else
-          export CC=clang
-          export CXX=clang++
-          cmake -S . -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
-            -DENABLE_TESTS=ON \
-            -DENABLE_UI=${{ matrix.enable_ui }} \
-            -DENABLE_CCACHE=$enable_ccache \
-            -DCMAKE_CXX_FLAGS=-stdlib=libc++ \
-            -DCMAKE_EXE_LINKER_FLAGS=-stdlib=libc++ \
-            -DLAF_BACKEND=skia -DSKIA_DIR=./build/skia  -DSKIA_LIBRARY_DIR=./build/skia/out/Release-x64 -DSKIA_LIBRARY=./build/skia/out/Release-x64/libskia.a
-        fi
+        cmake -S . -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+          -DENABLE_TESTS=ON \
+          -DENABLE_UI=${{ matrix.enable_ui }} \
+          -DENABLE_CCACHE=$enable_ccache \
+          -DLAF_BACKEND=skia -DSKIA_DIR=./build/skia  -DSKIA_LIBRARY_DIR=./build/skia/out/Release-x64 -DSKIA_LIBRARY=./build/skia/out/Release-x64/skia.lib
+
     - name: Compiling
       shell: bash
       run: |
         cd build && ninja
+
     - name: Publish
       shell: bash
       env:
@@ -86,10 +73,7 @@ jobs:
       run: |
         cd build/bin
 
-        tar -czvf aseprite.${{ runner.os }}.tar.gz aseprite* data/
+        tar -czvf aseprite.windows.tar.gz aseprite* data/
 
-        if [[ "${{ runner.os }}" == "Windows" ]] ; then
-          pip install requests
-        fi
-
-        python3 ../../push_gitea_release.py aseprite.${{ runner.os }}.tar.gz ${GITEA_API_KEY} ${GITHUB_REF_NAME}
+        pip install requests
+        python3 ../../push_gitea_release.py aseprite.windows.tar.gz ${GITEA_API_KEY} ${GITHUB_REF_NAME}
