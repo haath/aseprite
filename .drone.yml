@@ -37,6 +37,7 @@ steps:
   - mkdir -p build/skia
   - unzip skia.zip -d build/skia/
   # build
+  - ./patch_version.sh ${DRONE_TAG}
   - mkdir -p build
   - cd build
   - |
