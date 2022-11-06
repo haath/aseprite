@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 # install dependencies
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-    libx11-6 libxcursor1 libfontconfig1 libglu1 libc++1-10 \
+    libx11-6 libxcursor1 libfontconfig1 libglu1 libc++1-10 imagemagick \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # copy aseprite binary and make it executable
