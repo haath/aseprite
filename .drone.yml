@@ -47,9 +47,6 @@ steps:
           -DVERSION=${DRONE_TAG} \
           -G Ninja ..
   - ninja aseprite
-  # zip results
-  - cd bin
-  - zip -r aseprite.linux.zip aseprite data/
 
 - name: build image
   image: docker:20.10.21
@@ -76,5 +73,6 @@ steps:
       from_secret: GITEA_API_KEY
   commands:
   - cd build/bin
+  - tar -czvf aseprite.linux.tar.gz aseprite data/
   - pip install requests
   - python3 ../../push_gitea_package.py aseprite.linux.tar.gz ${DRONE_TAG}
