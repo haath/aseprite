@@ -12,7 +12,7 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest]
         build_type: [RelWithDebInfo]
-        enable_ui: [off]
+        enable_ui: [ on ]
     steps:
     - uses: actions/checkout@v2
       with:
@@ -57,8 +57,11 @@ jobs:
         GITEA_API_KEY: ${{ secrets.GITEA_API_KEY }}
       run: |
         cd build/bin
+
         tar -czvf aseprite.${{ runner.os }}.tar.gz aseprite* data/
+
         if [[ "${{ runner.os }}" == "Windows" ]] ; then
           pip install requests
         fi
+
         python3 ../../push_gitea_release.py aseprite.${{ runner.os }}.tar.gz ${GITEA_API_KEY} ${GITHUB_REF_NAME}
