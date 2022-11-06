@@ -5,8 +5,8 @@ import requests
 BASE_URL = 'https://git.gmantaos.com/api'
 
 file = sys.argv[1]
-token = sys.argv[2]
-tag = sys.argv[3]
+tag = sys.argv[2]
+token = os.environ['GITEA_API_KEY']
 
 file_name = os.path.basename(file)
 
