@@ -1,4 +1,5 @@
 name: build
+
 on:
   push:
     tags:
@@ -7,12 +8,14 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest]
         build_type: [RelWithDebInfo]
         enable_ui: [ on ]
+
     steps:
     - uses: actions/checkout@v2
       with:
@@ -59,7 +62,8 @@ jobs:
           -DENABLE_TESTS=ON \
           -DENABLE_UI=${{ matrix.enable_ui }} \
           -DENABLE_CCACHE=$enable_ccache \
-          -DLAF_BACKEND=skia -DSKIA_DIR=./build/skia  -DSKIA_LIBRARY_DIR=./build/skia/out/Release-x64 -DSKIA_LIBRARY=./build/skia/out/Release-x64/skia.lib
+          -DLAF_BACKEND=skia -DSKIA_DIR=./build/skia  -DSKIA_LIBRARY_DIR=./build/skia/out/Release-x64 -DSKIA_LIBRARY=./build/skia/out/Release-x64/skia.lib \
+          -DVERSION=${GITHUB_REF_NAME}
 
     - name: Compiling
       shell: bash
