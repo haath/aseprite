@@ -81,4 +81,4 @@ jobs:
         tar -czvf aseprite.windows.tar.gz aseprite* data/
 
         pip install requests
-        python3 ../../push_gitea_release.py aseprite.windows.tar.gz ${GITEA_API_KEY} ${GITHUB_REF_NAME}
+        python3 ../../push_gitea_package.py aseprite.windows.tar.gz ${GITEA_API_KEY} ${GITHUB_REF_NAME}
