@@ -37,14 +37,12 @@ jobs:
     - name: Get skia
       shell: bash
       run: |
-        mkdir -p build
-        cd build
+        mkdir -p build/skia
         if [[ "${{ runner.os }}" == "Linux" ]] ; then
+          cd build
           wget -O skia.zip https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Linux-Release-x64-libc++.zip
-          mkdir -p skia
           unzip skia.zip -d skia/
         else
-          mkdir -p skia
           powershell.exe -File get_skia.ps1
         fi
 
@@ -64,7 +62,7 @@ jobs:
             -DENABLE_UI=${{ matrix.enable_ui }} \
             -DENABLE_CCACHE=$enable_ccache \
             -DWEBP_LIBRARIES=libwebp \
-            -DLAF_BACKEND=skia -DSKIA_DIR=./skia  -DSKIA_LIBRARY_DIR=./skia/out/Release-x64 -DSKIA_LIBRARY=./skia/out/Release-x64/skia.lib
+            -DLAF_BACKEND=skia -DSKIA_DIR=./build/skia  -DSKIA_LIBRARY_DIR=./build/skia/out/Release-x64 -DSKIA_LIBRARY=./build/skia/out/Release-x64/skia.lib
         else
           cmake -S . -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
@@ -73,7 +71,7 @@ jobs:
             -DENABLE_UI=${{ matrix.enable_ui }} \
             -DENABLE_CCACHE=$enable_ccache \
             -DWEBP_LIBRARIES=libwebp \
-            -DLAF_BACKEND=skia -DSKIA_DIR=./skia  -DSKIA_LIBRARY_DIR=./skia/out/Release-x64 -DSKIA_LIBRARY=./skia/out/Release-x64/libskia.a
+            -DLAF_BACKEND=skia -DSKIA_DIR=./build/skia  -DSKIA_LIBRARY_DIR=./build/skia/out/Release-x64 -DSKIA_LIBRARY=./build/skia/out/Release-x64/libskia.a
         fi
     - name: Compiling
       shell: bash
