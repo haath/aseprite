@@ -31,8 +31,23 @@ jobs:
         if [[ "${{ runner.os }}" == "Linux" ]] ; then
           sudo apt-get update -qq
           sudo apt-get install -y \
-            libx11-dev libxcursor-dev libxi-dev
+            libx11-dev libxcursor-dev libxi-dev unzip
         fi
+    - name: Get skia
+      shell: bash
+      run: |
+        mkdir -p build
+        cd build
+        if [[ "${{ runner.os }}" == "Linux" ]] ; then
+          wget -O skia.zip https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Linux-Release-x64-libc++.zip
+          mkdir -p skia
+          unzip skia.zip -d skia/
+        else
+          wget -O skia.zip https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Windows-Release-x64.zip
+          mkdir -p skia
+          7z x skia.zip -o skia/
+        fi
+
     - name: Generating Makefiles
       shell: bash
       run: |
@@ -41,12 +56,23 @@ jobs:
         else
           export enable_ccache=on
         fi
-        cmake -S . -B build -G Ninja \
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-          -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
-          -DENABLE_TESTS=ON \
-          -DENABLE_UI=${{ matrix.enable_ui }} \
-          -DENABLE_CCACHE=$enable_ccache
+        if [[ "${{ runner.os }}" == "Windows" ]] ; then
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+            -DENABLE_TESTS=ON \
+            -DENABLE_UI=${{ matrix.enable_ui }} \
+            -DENABLE_CCACHE=$enable_ccache \
+            -DLAF_BACKEND=skia -DSKIA_DIR=./skia  -DSKIA_LIBRARY_DIR=./skia/out/Release-x64 -DSKIA_LIBRARY=./skia/out/Release-x64/skia.lib
+        else
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+            -DENABLE_TESTS=ON \
+            -DENABLE_UI=${{ matrix.enable_ui }} \
+            -DENABLE_CCACHE=$enable_ccache \
+            -DLAF_BACKEND=skia -DSKIA_DIR=./skia  -DSKIA_LIBRARY_DIR=./skia/out/Release-x64 -DSKIA_LIBRARY=./skia/out/Release-x64/libskia.a
+        fi
     - name: Compiling
       shell: bash
       run: |
