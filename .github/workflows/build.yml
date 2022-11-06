@@ -58,4 +58,7 @@ jobs:
       run: |
         cd build/bin
         tar -czvf aseprite.${{ runner.os }}.tar.gz aseprite* data/
+        if [[ "${{ runner.os }}" == "Windows" ]] ; then
+          pip install requests
+        fi
         python3 ../../push_gitea_release.py aseprite.${{ runner.os }}.tar.gz ${GITEA_API_KEY} ${GITHUB_REF_NAME}
