@@ -77,4 +77,4 @@ steps:
   commands:
   - cd build/bin
   - pip install requests
-  - python3 ../../push_gitea_package.py aseprite.windows.tar.gz ${DRONE_TAG}
+  - python3 ../../push_gitea_package.py aseprite.linux.tar.gz ${DRONE_TAG}
