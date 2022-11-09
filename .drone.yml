@@ -47,10 +47,23 @@ steps:
           -DVERSION=${DRONE_TAG:1} \
           -G Ninja ..
   - ninja aseprite
+  - cd bin
+  - chmod +x aseprite
+  - aseprite --version
+
+- name: fetch aseprite-gen
+  image: git.gmantaos.com/haath/tools
+  commands:
+  - get_release_asset haath/aseprite-gen v1.0.0 aseprite-gen
+  - chmod +x aseprite-gen
+  - ./aseprite-gen --version
 
 - name: build image
   image: docker:20.10.21
   privileged: true
+  depends_on:
+  - build
+  - fetch aseprite-gen
   volumes:
   - name: dockersock
     path: /var/run/docker.sock
