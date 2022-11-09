@@ -17,6 +17,13 @@ steps:
   commands:
   - git submodule update --init --recursive
 
+- name: fetch aseprite-gen
+  image: git.gmantaos.com/haath/tools
+  commands:
+  - get_release_asset haath/aseprite-gen v1.0.0 aseprite-gen
+  - chmod +x aseprite-gen
+  - ./aseprite-gen --version
+
 - name: build
   image: ubuntu:18.04
   environment:
@@ -50,13 +57,6 @@ steps:
   - cd bin
   - chmod +x aseprite
   - aseprite --version
-
-- name: fetch aseprite-gen
-  image: git.gmantaos.com/haath/tools
-  commands:
-  - get_release_asset haath/aseprite-gen v1.0.0 aseprite-gen
-  - chmod +x aseprite-gen
-  - ./aseprite-gen --version
 
 - name: build image
   image: docker:20.10.21
