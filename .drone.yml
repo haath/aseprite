@@ -12,10 +12,6 @@ volumes:
     path: /var/run/docker.sock
 
 steps:
-- name: submodules
-  image: drone/git
-  commands:
-  - git submodule update --init --recursive
 
 - name: fetch aseprite-gen
   image: git.gmantaos.com/haath/tools
@@ -23,6 +19,11 @@ steps:
   - get_release_asset haath/aseprite-gen v1.0.0 aseprite-gen
   - chmod +x aseprite-gen
   - ./aseprite-gen --version
+
+- name: submodules
+  image: drone/git
+  commands:
+  - git submodule update --init --recursive
 
 - name: build
   image: ubuntu:18.04
@@ -56,7 +57,7 @@ steps:
   - ninja aseprite
   - cd bin
   - chmod +x aseprite
-  - aseprite --version
+  - ./aseprite --version
 
 - name: build image
   image: docker:20.10.21
