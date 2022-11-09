@@ -13,4 +13,8 @@ RUN chmod +x /usr/local/bin/aseprite
 # copy the data folder
 COPY ./build/bin/data/ /usr/local/bin/data
 
+# copy aseprite-gen binary and make it executable
+COPY aseprite-gen /usr/local/bin/aseprite-gen
+RUN chmod +x /usr/local/bin/aseprite-gen
+
 CMD [ "aseprite", "-b" ]
