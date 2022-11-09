@@ -8,11 +8,9 @@ RUN apt-get update \
 
 # copy aseprite binary and make it executable
 COPY ./build/bin/aseprite /usr/local/bin/aseprite
+COPY ./build/bin/data/ /usr/local/bin/data
 RUN chmod +x /usr/local/bin/aseprite
 RUN aseprite --version
-
-# copy the data folder
-COPY ./build/bin/data/ /usr/local/bin/data
 
 # copy aseprite-gen binary and make it executable
 COPY aseprite-gen /usr/local/bin/aseprite-gen
