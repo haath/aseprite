@@ -38,13 +38,13 @@ steps:
   - unzip skia.zip -d build/skia/
   # build
   - chmod +x patch_version.sh
-  - ./patch_version.sh ${DRONE_TAG}
+  - ./patch_version.sh ${DRONE_TAG:1}
   - mkdir -p build
   - cd build
   - |
     cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS:STRING=-stdlib=libc++ -DCMAKE_EXE_LINKER_FLAGS:STRING=-stdlib=libc++ \
           -DLAF_BACKEND=skia -DSKIA_DIR=./skia  -DSKIA_LIBRARY_DIR=./skia/out/Release-x64 -DSKIA_LIBRARY=./skia/out/Release-x64/libskia.a \
-          -DVERSION=${DRONE_TAG} \
+          -DVERSION=${DRONE_TAG:1} \
           -G Ninja ..
   - ninja aseprite
 
@@ -67,8 +67,8 @@ steps:
   - docker build -t $IMAGE_NAME .
   # push image to gitea registry
   - docker login -u haath -p "$GITEA_API_KEY" git.gmantaos.com
-  - docker tag $IMAGE_NAME "$IMAGE_NAME:$DRONE_TAG"
-  - docker push "$IMAGE_NAME:$DRONE_TAG"
+  - docker tag $IMAGE_NAME "$IMAGE_NAME:${DRONE_TAG:1}"
+  - docker push "$IMAGE_NAME:${DRONE_TAG:1}"
   - docker tag $IMAGE_NAME "$IMAGE_NAME:latest"
   - docker push "$IMAGE_NAME:latest"
 

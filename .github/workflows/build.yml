@@ -56,7 +56,7 @@ jobs:
         else
           export enable_ccache=on
         fi
-        ./patch_version.sh ${GITHUB_REF_NAME}
+        #./patch_version.sh ${GITHUB_REF_NAME:1}
         cmake -S . -B build -G Ninja \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
@@ -64,7 +64,7 @@ jobs:
           -DENABLE_UI=${{ matrix.enable_ui }} \
           -DENABLE_CCACHE=$enable_ccache \
           -DLAF_BACKEND=skia -DSKIA_DIR=./build/skia  -DSKIA_LIBRARY_DIR=./build/skia/out/Release-x64 -DSKIA_LIBRARY=./build/skia/out/Release-x64/skia.lib \
-          -DVERSION=${GITHUB_REF_NAME}
+          -DVERSION=${GITHUB_REF_NAME:1}
 
     - name: Compiling
       shell: bash
