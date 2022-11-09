@@ -15,6 +15,9 @@ steps:
 
 - name: fetch aseprite-gen
   image: git.gmantaos.com/haath/tools
+  environment:
+    GITEA_API_KEY:
+      from_secret: GITEA_API_KEY
   commands:
   - get_release_asset haath/aseprite-gen v1.0.0 aseprite-gen
   - chmod +x aseprite-gen
