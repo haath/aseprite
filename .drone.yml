@@ -72,11 +72,6 @@ steps:
       from_secret: GITEA_API_KEY
     IMAGE_NAME: git.gmantaos.com/haath/aseprite
   commands:
-  # download aseprite-gen (v1.0.0)
-  - apt-get update && apt-get install -y --no-install-recommends jq curl
-  - wget -O get_release_asset "https://git.gmantaos.com/api/v1/repos/haath/tools/raw/get_release_asset?token=$${GITEA_API_KEY}"
-  - chmod +x get_release_asset
-  - ./get_release_asset haath/aseprite-gen v1.0.0 aseprite-gen
   # build docker image
   - docker build -t $IMAGE_NAME .
   # push image to gitea registry
