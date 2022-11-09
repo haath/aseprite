@@ -13,16 +13,6 @@ volumes:
 
 steps:
 
-- name: fetch aseprite-gen
-  image: git.gmantaos.com/haath/tools
-  environment:
-    GITEA_API_KEY:
-      from_secret: GITEA_API_KEY
-  commands:
-  - get_release_asset haath/aseprite-gen v1.0.0 aseprite-gen
-  - chmod +x aseprite-gen
-  - ./aseprite-gen --version
-
 - name: submodules
   image: drone/git
   commands:
@@ -61,6 +51,15 @@ steps:
   - cd bin
   - chmod +x aseprite
   - ./aseprite --version
+
+- name: fetch aseprite-gen
+  image: git.gmantaos.com/haath/tools
+  environment:
+    GITEA_API_KEY:
+      from_secret: GITEA_API_KEY
+  commands:
+  - get_release_asset haath/aseprite-gen v1.0.0 aseprite-gen
+  - chmod +x aseprite-gen
 
 - name: build image
   image: docker:20.10.21
