@@ -1,8 +1,8 @@
 FROM ubuntu:22.10
 
 # install dependencies
-RUN apt-get update --allow-unauthenticated \
- && apt-get install -y --no-install-recommends --allow-unauthenticated \
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
     libx11-6 libgl1 libfontconfig1 libxcursor1 libc++1 \
     imagemagick \
  && apt-get clean && rm -rf /var/lib/apt/lists/*

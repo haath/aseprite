@@ -86,7 +86,6 @@ steps:
 - name: release
   image: git.gmantaos.com/haath/tools
   environment:
-    GITEA_BASE_URL: https://git.gmantaos.com
     GITEA_API_KEY:
       from_secret: GITEA_API_KEY
   commands:
