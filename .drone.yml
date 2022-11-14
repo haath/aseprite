@@ -11,8 +11,10 @@ volumes:
   host:
     path: /var/run/docker.sock
 
-steps:
+environment:
+  ASEPRITE_GEN_VERSION: v1.1.0
 
+steps:
 - name: submodules
   image: drone/git
   commands:
@@ -58,7 +60,7 @@ steps:
     GITEA_API_KEY:
       from_secret: GITEA_API_KEY
   commands:
-  - get_release_asset haath/aseprite-gen v1.0.0 aseprite-gen
+  - get_release_asset haath/aseprite-gen ${ASEPRITE_GEN_VERSION} aseprite-gen
   - chmod +x aseprite-gen
 
 - name: build image
