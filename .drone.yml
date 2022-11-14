@@ -14,12 +14,13 @@ volumes:
 environment:
   IMAGE_NAME: git.gmantaos.com/haath/aseprite
   ASEPRITE_GEN_VERSION: v1.1.0
-  GITEA_API_KEY:
-    from_secret: GITEA_API_KEY
 
 steps:
 - name: fetch aseprite-gen
   image: git.gmantaos.com/haath/tools
+  environment:
+    GITEA_API_KEY:
+      from_secret: GITEA_API_KEY
   commands:
   - get_release_asset haath/aseprite-gen $ASEPRITE_GEN_VERSION aseprite-gen
   - chmod +x aseprite-gen
@@ -66,6 +67,9 @@ steps:
 - name: build image
   image: docker:20.10.21
   privileged: true
+  environment:
+    GITEA_API_KEY:
+      from_secret: GITEA_API_KEY
   volumes:
   - name: dockersock
     path: /var/run/docker.sock
@@ -81,6 +85,9 @@ steps:
 
 - name: release
   image: python:3-alpine
+  environment:
+    GITEA_API_KEY:
+      from_secret: GITEA_API_KEY
   commands:
   - cd build/bin
   - tar -czvf aseprite.linux.tar.gz aseprite data/
