@@ -16,15 +16,6 @@ environment:
   ASEPRITE_GEN_VERSION: v1.1.0
 
 steps:
-- name: fetch aseprite-gen
-  image: git.gmantaos.com/haath/tools
-  environment:
-    GITEA_API_KEY:
-      from_secret: GITEA_API_KEY
-  commands:
-  - get_release_asset haath/aseprite-gen $ASEPRITE_GEN_VERSION aseprite-gen
-  - chmod +x aseprite-gen
-
 - name: submodules
   image: drone/git
   commands:
@@ -64,6 +55,15 @@ steps:
   - chmod +x aseprite
   - ./aseprite --version
 
+- name: fetch aseprite-gen
+  image: git.gmantaos.com/haath/tools
+  environment:
+    GITEA_API_KEY:
+      from_secret: GITEA_API_KEY
+  commands:
+  - get_release_asset haath/aseprite-gen $ASEPRITE_GEN_VERSION aseprite-gen
+  - chmod +x aseprite-gen
+
 - name: build image
   image: docker:20.10.21
   privileged: true
@@ -84,12 +84,12 @@ steps:
   - docker push "$IMAGE_NAME:latest"
 
 - name: release
-  image: python:3-alpine
+  image: git.gmantaos.com/haath/tools
   environment:
+    GITEA_BASE_URL: https://git.gmantaos.com
     GITEA_API_KEY:
       from_secret: GITEA_API_KEY
   commands:
   - cd build/bin
   - tar -czvf aseprite.linux.tar.gz aseprite data/
-  - pip install requests
-  - python3 ../../push_gitea_package.py aseprite.linux.tar.gz ${DRONE_TAG}
+  - push_gitea_package haath/aseprite ${DRONE_TAG} aseprite.linux.tar.gz

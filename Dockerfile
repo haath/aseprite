@@ -1,9 +1,8 @@
 FROM ubuntu:22.10
 
 # install dependencies
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 871920D1991BC93C
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
+RUN apt-get update --allow-unauthenticated \
+ && apt-get install -y --no-install-recommends --allow-unauthenticated \
     libx11-6 libgl1 libfontconfig1 libxcursor1 libc++1 \
     imagemagick \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
