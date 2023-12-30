@@ -1,4 +1,4 @@
-FROM ubuntu:22.10
+FROM ubuntu:noble
 
 # install dependencies
 RUN apt-get update \
