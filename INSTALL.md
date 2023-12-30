@@ -19,9 +19,9 @@
 You should be able to compile Aseprite successfully on the following
 platforms:
 
-* Windows 10 + [Visual Studio Community 2022 + Windows 10.0 SDK (the latest version available)](https://imgur.com/a/7zs51IT) (we don't support [MinGW](#mingw))
-* macOS 12.3.1 Monterey + Xcode 13.1 + macOS 11.3 SDK (older version might work)
-* Linux Ubuntu Xenial 16.04 + clang 10.0
+* Windows 11 + [Visual Studio Community 2022 + Windows 10.0 SDK (the latest version available)](https://imgur.com/a/7zs51IT) (we don't support [MinGW](#mingw))
+* macOS 13.0.1 Ventura + Xcode 14.1 + macOS 11.3 SDK (older version might work)
+* Linux Ubuntu Bionic 18.04 + clang 10.0
 
 # Get the source code
 
@@ -73,7 +73,11 @@ might work).
 
 You will need the following dependencies on Ubuntu/Debian:
 
-    sudo apt-get install -y g++ clang-10 libc++-10-dev libc++abi-10-dev cmake ninja-build libx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev libfontconfig1-dev
+    sudo apt-get install -y g++ clang libc++-dev libc++abi-dev cmake ninja-build libx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev libfontconfig1-dev
+
+Or use clang-10 packages (or newer) in case that clang in your distribution is older than clang 10.0:
+
+    sudo apt-get install -y clang-10 libc++-10-dev libc++abi-10-dev
 
 On Fedora:
 
@@ -123,10 +127,11 @@ On SUSE:
 
 ## Windows details
 
-Open a [developer command prompt](https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs)
-or in the command line (`cmd.exe`) call:
+Open a command prompt window (`cmd.exe`) and call:
 
     call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+
+The command above is required while using the 64-bit version of skia. When compiling with the 32-bit version, it is possible to open a [developer command prompt](https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs) instead.
 
 And then
 
@@ -185,9 +190,12 @@ but it could be different in your Mac.
 ### Apple Silicon
 
 If you running macOS on an ARM64/AArch64/Apple Silicon Mac (e.g. M1),
-you can compile a native ARM64 version of Aseprite following the same
+you can compile a native ARM64 version of Aseprite following similar 
 steps as above but when we call `cmake`, we have some differences:
 
+    cd aseprite
+    mkdir build
+    cd build
     cmake \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_OSX_ARCHITECTURES=arm64 \
@@ -200,6 +208,7 @@ steps as above but when we call `cmake`, we have some differences:
       -DPNG_ARM_NEON:STRING=on \
       -G Ninja \
       ..
+      ninja aseprite
 
 ### Issues with Retina displays
 

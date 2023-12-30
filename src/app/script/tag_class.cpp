@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2022  Igara Studio S.A.
+// Copyright (C) 2018-2023  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This program is distributed under the terms of
@@ -96,7 +96,7 @@ int Tag_set_fromFrame(lua_State* L)
 {
   auto tag = get_docobj<Tag>(L, 1);
   const auto fromFrame = get_frame_number_from_arg(L, 2);
-  Tx tx;
+  Tx tx(tag->sprite());
   tx(new cmd::SetTagRange(tag, fromFrame,
                           std::max(fromFrame, tag->toFrame())));
   tx.commit();
@@ -107,7 +107,7 @@ int Tag_set_toFrame(lua_State* L)
 {
   auto tag = get_docobj<Tag>(L, 1);
   const auto toFrame = get_frame_number_from_arg(L, 2);
-  Tx tx;
+  Tx tx(tag->sprite());
   tx(new cmd::SetTagRange(tag,
                                std::min(tag->fromFrame(), toFrame),
                                toFrame));
@@ -120,7 +120,7 @@ int Tag_set_name(lua_State* L)
   auto tag = get_docobj<Tag>(L, 1);
   const char* name = lua_tostring(L, 2);
   if (name) {
-    Tx tx;
+    Tx tx(tag->sprite());
     tx(new cmd::SetTagName(tag, name));
     tx.commit();
   }
@@ -131,7 +131,7 @@ int Tag_set_aniDir(lua_State* L)
 {
   auto tag = get_docobj<Tag>(L, 1);
   const int aniDir = lua_tointeger(L, 2);
-  Tx tx;
+  Tx tx(tag->sprite());
   tx(new cmd::SetTagAniDir(tag, (doc::AniDir)aniDir));
   tx.commit();
   return 0;
@@ -141,7 +141,7 @@ int Tag_set_repeats(lua_State* L)
 {
   auto tag = get_docobj<Tag>(L, 1);
   const int repeat = lua_tointeger(L, 2);
-  Tx tx;
+  Tx tx(tag->sprite());
   tx(new cmd::SetTagRepeat(tag, repeat));
   tx.commit();
   return 0;
@@ -162,6 +162,7 @@ const Property Tag_properties[] = {
   { "repeats", Tag_get_repeats, Tag_set_repeats }, // Cannot be "repeat" because it's a Lua keyword
   { "color", UserData_get_color<Tag>, UserData_set_color<Tag> },
   { "data", UserData_get_text<Tag>, UserData_set_text<Tag> },
+  { "properties", UserData_get_properties<Tag>, UserData_set_properties<Tag> },
   { nullptr, nullptr, nullptr }
 };
 

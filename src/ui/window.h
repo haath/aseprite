@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2019-2022  Igara Studio S.A.
+// Copyright (C) 2019-2023  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -27,6 +27,12 @@ namespace ui {
 
     explicit Window(Type type, const std::string& text = "");
     ~Window();
+
+    // Preset parent display (instead of using the foreground/main
+    // window). Useful to display an alert/subdialog inside a specific
+    // window.
+    void setParentDisplay(Display* display) { m_parentDisplay = display; }
+    Display* parentDisplay() const { return m_parentDisplay; }
 
     bool ownDisplay() const { return m_ownDisplay; }
     Display* display() const;
@@ -60,6 +66,10 @@ namespace ui {
     bool isSizeable() const { return m_isSizeable; }
     bool isMoveable() const { return m_isMoveable; }
 
+    // Returns true only inside onWindowResize() when the window size
+    // changed.
+    bool isResizing() const { return m_isResizing; }
+
     bool shouldCreateNativeWindow() const {
       return !isDesktop();
     }
@@ -82,6 +92,7 @@ namespace ui {
     // Signals
     obs::signal<void (Event&)> Open;
     obs::signal<void (CloseEvent&)> Close;
+    obs::signal<void (ResizeEvent&)> Resize;
 
   protected:
     ButtonBase* closeButton() { return m_closeButton; }
@@ -106,9 +117,11 @@ namespace ui {
   private:
     void windowSetPosition(const gfx::Rect& rect);
     int getAction(int x, int y);
-    void limitSize(int* w, int* h);
+    void limitSize(gfx::Size& size);
+    void limitPosition(gfx::Rect& rect);
     void moveWindow(const gfx::Rect& rect, bool use_blit);
 
+    Display* m_parentDisplay = nullptr;
     Display* m_display;
     Widget* m_closer;
     Label* m_titleLabel;
@@ -121,6 +134,7 @@ namespace ui {
     bool m_isWantFocus : 1;
     bool m_isForeground : 1;
     bool m_isAutoRemap : 1;
+    bool m_isResizing : 1;
     int m_hitTest;
     gfx::Rect m_lastFrame;
   };

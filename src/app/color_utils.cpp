@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-2023  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This program is distributed under the terms of
@@ -35,6 +35,14 @@ gfx::Color color_utils::blackandwhite_neg(gfx::Color color)
     return gfx::rgba(255, 255, 255);
   else
     return gfx::rgba(0, 0, 0);
+}
+
+app::Color color_utils::color_from_ui(const gfx::Color color)
+{
+  return app::Color::fromRgb(gfx::getr(color),
+                             gfx::getg(color),
+                             gfx::getb(color),
+                             gfx::geta(color));
 }
 
 gfx::Color color_utils::color_for_ui(const app::Color& color)
@@ -101,7 +109,7 @@ doc::color_t color_utils::color_for_image(const app::Color& color, PixelFormat f
       c = color.getIndex();
       break;
     case IMAGE_TILEMAP:
-      c = color.getIndex(); // TODO Add app::Color::getTile() ?
+      c = color.getTile();
       break;
   }
 
@@ -126,7 +134,7 @@ doc::color_t color_utils::color_for_image_without_alpha(const app::Color& color,
       c = color.getIndex();
       break;
     case IMAGE_TILEMAP:
-      c = color.getIndex(); // TODO Add app::Color::getTile() ?
+      c = color.getTile();
       break;
   }
 
@@ -172,7 +180,7 @@ doc::color_t color_utils::color_for_target_mask(const app::Color& color, const C
         }
         break;
       case IMAGE_TILEMAP:
-        c = color.getIndex(); // TODO Add app::Color::getTile() ?
+        c = color.getTile();
         break;
     }
   }

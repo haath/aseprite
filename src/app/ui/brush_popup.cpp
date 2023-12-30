@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2022  Igara Studio S.A.
+// Copyright (C) 2018-2023  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -154,7 +154,7 @@ public:
     , m_brushes(App::instance()->brushes())
     , m_slot(slot) {
     auto theme = skin::SkinTheme::get(this);
-    setIcon(theme->parts.iconArrowDown(), true);
+    setIcon(theme->parts.iconArrowDown());
   }
 
 private:
@@ -181,7 +181,7 @@ private:
     menu.addChild(&deleteAllItem);
     menu.addChild(new Label(""));
     menu.addChild(
-      new Separator(Strings::brush_slot_params_saved_parameters(), HORIZONTAL));
+      new Separator(Strings::brush_slot_params_title(), HORIZONTAL));
 
     app::gen::BrushSlotParams params;
     menu.addChild(&params);
@@ -283,14 +283,15 @@ class NewBrushOptionsItem : public ButtonSet::Item {
 public:
   NewBrushOptionsItem() {
     auto theme = skin::SkinTheme::get(this);
-    setIcon(theme->parts.iconArrowDown(), true);
+    setIcon(theme->parts.iconArrowDown());
   }
 
 private:
   void onClick() override {
     Menu menu;
 
-    menu.addChild(new Separator("Parameters to Save", HORIZONTAL));
+    menu.addChild(
+      new Separator(Strings::brush_slot_params_title(), HORIZONTAL));
 
     app::gen::BrushSlotParams params;
     menu.addChild(&params);
@@ -362,8 +363,7 @@ BrushPopup::BrushPopup()
   for (const auto& brush : brushes.getStandardBrushes()) {
     m_standardBrushes.addItem(
       new SelectBrushItem(
-        BrushSlot(BrushSlot::Flags::BrushType, brush)))
-      ->setMono(true);
+        BrushSlot(BrushSlot::Flags::BrushType, brush)), "standard_brush");
   }
   m_standardBrushes.setTransparent(true);
 
@@ -428,12 +428,13 @@ void BrushPopup::regenerate(ui::Display* display,
     }
     m_customBrushes->addItem(new SelectBrushItem(brush, slot));
     m_customBrushes->addItem(new BrushShortcutItem(shortcut, slot));
-    m_customBrushes->addItem(new BrushOptionsItem(this, slot));
+    m_customBrushes->addItem(new BrushOptionsItem(this, slot), "buttonset_item_icon_mono");
   }
 
   m_customBrushes->addItem(new NewCustomBrushItem, 2, 1);
-  m_customBrushes->addItem(new NewBrushOptionsItem);
+  m_customBrushes->addItem(new NewBrushOptionsItem, "buttonset_item_icon_mono");
   m_customBrushes->setExpansive(true);
+  m_customBrushes->initTheme();
   m_box.addChild(m_customBrushes);
 
   // Resize the window and change the hot region.
@@ -460,12 +461,14 @@ void BrushPopup::onBrushChanges()
 os::SurfaceRef BrushPopup::createSurfaceForBrush(const BrushRef& origBrush,
                                                  const bool useOriginalImage)
 {
+  constexpr int kMaxSize = 9;
+
   Image* image = nullptr;
   BrushRef brush = origBrush;
   if (brush) {
-    if (brush->type() != kImageBrushType && brush->size() > 10) {
+    if (brush->type() != kImageBrushType && brush->size() > kMaxSize) {
       brush.reset(new Brush(*brush));
-      brush->setSize(10);
+      brush->setSize(kMaxSize);
     }
     // Show the original image in the popup (without the image colors
     // modified if there were some modification).
@@ -476,8 +479,8 @@ os::SurfaceRef BrushPopup::createSurfaceForBrush(const BrushRef& origBrush,
   }
 
   os::SurfaceRef surface = os::instance()->makeRgbaSurface(
-    std::min(10, image ? image->width(): 4),
-    std::min(10, image ? image->height(): 4));
+    std::min(kMaxSize, (image ? image->width(): 4)),
+    std::min(kMaxSize, (image ? image->height(): 4)));
 
   if (image) {
     Palette* palette = get_current_palette();
@@ -493,6 +496,8 @@ os::SurfaceRef BrushPopup::createSurfaceForBrush(const BrushRef& origBrush,
 
     if (image->pixelFormat() == IMAGE_BITMAP)
       delete palette;
+
+    surface->applyScale(guiscale());
   }
   else {
     surface->clear();

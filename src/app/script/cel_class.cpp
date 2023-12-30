@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2022  Igara Studio S.A.
+// Copyright (C) 2018-2023  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This program is distributed under the terms of
@@ -12,6 +12,7 @@
 #include "app/cmd/replace_image.h"
 #include "app/cmd/set_cel_opacity.h"
 #include "app/cmd/set_cel_position.h"
+#include "app/cmd/set_cel_zindex.h"
 #include "app/doc_api.h"
 #include "app/script/docobj.h"
 #include "app/script/engine.h"
@@ -94,6 +95,13 @@ int Cel_get_opacity(lua_State* L)
   return 1;
 }
 
+int Cel_get_zIndex(lua_State* L)
+{
+  const auto cel = get_docobj<Cel>(L, 1);
+  lua_pushinteger(L, cel->zIndex());
+  return 1;
+}
+
 int Cel_set_frame(lua_State* L)
 {
   const auto cel = get_docobj<Cel>(L, 1);
@@ -102,8 +110,8 @@ int Cel_set_frame(lua_State* L)
   if (cel->frame() == frame)
     return 0;
 
-  Tx tx;
   Doc* doc = static_cast<Doc*>(cel->document());
+  Tx tx(doc);
   DocApi api = doc->getApi(tx);
   api.moveCel(cel->layer(), cel->frame(),
               cel->layer(), frame);
@@ -117,7 +125,7 @@ int Cel_set_image(lua_State* L)
   auto srcImage = get_image_from_arg(L, 2);
   ImageRef newImage(Image::createCopy(srcImage));
 
-  Tx tx;
+  Tx tx(cel->sprite());
   tx(new cmd::ReplaceImage(cel->sprite(),
                            cel->imageRef(),
                            newImage));
@@ -129,7 +137,7 @@ int Cel_set_position(lua_State* L)
 {
   auto cel = get_docobj<Cel>(L, 1);
   const gfx::Point pos = convert_args_into_point(L, 2);
-  Tx tx;
+  Tx tx(cel->sprite());
   tx(new cmd::SetCelPosition(cel, pos.x, pos.y));
   tx.commit();
   return 0;
@@ -138,8 +146,17 @@ int Cel_set_position(lua_State* L)
 int Cel_set_opacity(lua_State* L)
 {
   auto cel = get_docobj<Cel>(L, 1);
-  Tx tx;
+  Tx tx(cel->sprite());
   tx(new cmd::SetCelOpacity(cel, lua_tointeger(L, 2)));
+  tx.commit();
+  return 0;
+}
+
+int Cel_set_zIndex(lua_State* L)
+{
+  auto cel = get_docobj<Cel>(L, 1);
+  Tx tx(cel->sprite());
+  tx(new cmd::SetCelZIndex(cel, lua_tointeger(L, 2)));
   tx.commit();
   return 0;
 }
@@ -158,8 +175,10 @@ const Property Cel_properties[] = {
   { "bounds", Cel_get_bounds, nullptr },
   { "position", Cel_get_position, Cel_set_position },
   { "opacity", Cel_get_opacity, Cel_set_opacity },
+  { "zIndex", Cel_get_zIndex, Cel_set_zIndex },
   { "color", UserData_get_color<Cel>, UserData_set_color<Cel> },
   { "data", UserData_get_text<Cel>, UserData_set_text<Cel> },
+  { "properties", UserData_get_properties<Cel>, UserData_set_properties<Cel> },
   { nullptr, nullptr, nullptr }
 };
 

@@ -15,7 +15,6 @@
 #include "app/doc_api.h"
 #include "app/modules/gui.h"
 #include "app/tx.h"
-#include "app/ui/button_set.h"
 #include "app/ui/color_bar.h"
 #include "app/ui/doc_view.h"
 #include "app/ui/editor/editor.h"
@@ -386,7 +385,7 @@ void CanvasSizeCommand::onExecute(Context* context)
     ContextWriter writer(reader);
     Doc* doc = writer.document();
     Sprite* sprite = writer.sprite();
-    Tx tx(writer.context(), "Canvas Size");
+    Tx tx(writer, "Canvas Size");
     DocApi api = doc->getApi(tx);
     api.cropSprite(sprite, bounds, params.trimOutside());
     tx.commit();

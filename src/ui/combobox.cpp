@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2018-2022  Igara Studio S.A.
+// Copyright (C) 2018-2023  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -538,6 +538,7 @@ bool ComboBoxEntry::onProcessMessage(Message* msg)
             kMouseDownMessage,
             *mouseMsg,
             mouseMsg->positionForDisplay(pick->display()));
+          mouseMsg2.setRecipient(pick);
           mouseMsg2.setDisplay(pick->display());
           pick->sendMessage(&mouseMsg2);
           return true;
@@ -631,7 +632,7 @@ void ComboBoxListBox::onChange()
 }
 
 // When the mouse is clicked we switch the visibility-status of the list-box
-void ComboBox::onButtonClick(Event& ev)
+void ComboBox::onButtonClick()
 {
   switchListBox();
 }

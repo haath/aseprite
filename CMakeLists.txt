@@ -9,15 +9,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # We use -std=c++17 instead of -std=gnu++17 in macOS
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-if(COMMAND cmake_policy)
-  # CMP0003: Libraries linked via full path no longer produce linker search paths.
-  #cmake_policy(SET CMP0003 NEW)
-  if(CMAKE_MAJOR_VERSION GREATER 2)
-    # CMP0046: Old behavior to silently ignore non-existent dependencies.
-    cmake_policy(SET CMP0046 OLD)
-  endif()
-endif()
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Choose the type of build, options are:
@@ -106,16 +97,6 @@ if(NOT LAF_OS_BACKEND)
     set(LAF_OS_BACKEND "none") # Without UI, we use the none backend
   else()
     set(LAF_OS_BACKEND "skia")
-  endif()
-endif()
-
-# Check valid gtk + libpng combination
-if(LAF_OS_WITH_GTK)
-  if(NOT USE_SHARED_LIBPNG)
-    message(FATAL_ERROR "Cannot compile with gtk and static libpng, set USE_SHARED_LIBPNG=ON")
-  endif()
-  if(NOT USE_SHARED_HARFBUZZ)
-    message(FATAL_ERROR "Cannot compile with gtk and static HarfBuzz, set USE_SHARED_HARFBUZZ=ON")
   endif()
 endif()
 
