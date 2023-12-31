@@ -13,7 +13,7 @@ volumes:
 
 environment:
   IMAGE_NAME: git.gmantaos.com/haath/aseprite
-  ASEPRITE_GEN_VERSION: v1.3.0
+  ASEPRITE_GEN_VERSION: v1.5.1
 
 steps:
 - name: submodules
